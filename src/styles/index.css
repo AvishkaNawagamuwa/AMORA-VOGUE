@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-ivory: #F8F5EB;
+    --color-olive: #303915;
+    --color-gold: #C8A35D;
+    --color-white: #FFFFFF;
+    --color-charcoal: #1B1B1B;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Headings typography */
+  h1, h2, h3, .font-editorial {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F5EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8A35D44;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #30391566;
+}
+
+/* Carousel specific classes requested by specification */
+.hero-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #F8F5EB;
+}
+
+.hero-slide {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.hero-slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Image zoom & hover utilities */
+.product-image-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.product-image-container img {
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.product-image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Safe area for mobile */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
