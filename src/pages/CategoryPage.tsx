@@ -1,26 +1,26 @@
 import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
-import { CATEGORIES } from '../data/categories';
+import { useStore } from '../context/StoreContext';
 import { ProductListTemplate } from '../components/products/ProductListTemplate';
 
 export const CategoryPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { getCategoryBySlug, getProductsByCategory } = useStore();
 
-  const category = CATEGORIES.find((c) => c.slug === slug);
+  const category = getCategoryBySlug(slug || '');
 
   if (!category) {
     return <Navigate to="/shop" replace />;
   }
 
-  const categoryProducts = PRODUCTS.filter((p) => p.category === category.slug);
+  const categoryProducts = getProductsByCategory(category.slug || category.id);
 
   return (
     <ProductListTemplate
       title={category.name}
       subtitle="Category Collection"
       initialProducts={categoryProducts}
-      currentCategory={category.slug}
+      currentCategory={category.slug || category.id}
     />
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingBag, Menu, X, ChevronDown, Heart } from 'lucide-react';
 import { useSelectionBag } from '../../context/SelectionBagContext';
+import { useStore } from '../../context/StoreContext';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -9,10 +10,19 @@ export const Navbar: React.FC = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
 
   const { totalItems, toggleDrawer } = useSelectionBag();
+  const { categories } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const navCategories = categories
+    .filter((c) => c.isActive && c.showInNav)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
+
+  const primaryNavCategories = navCategories.slice(0, 3);
+  const overflowNavCategories = navCategories.slice(3);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +105,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center space-x-7 text-xs font-medium tracking-widestPlus uppercase text-charcoal">
+            <nav className="hidden lg:flex items-center space-x-6 xl:space-x-7 text-xs font-medium tracking-widestPlus uppercase text-charcoal">
               <Link
                 to="/new-arrivals"
                 className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all"
@@ -103,7 +113,7 @@ export const Navbar: React.FC = () => {
                 New Arrivals
               </Link>
 
-              {/* Shop Dropdown */}
+              {/* Shop Dropdown with all dynamic categories */}
               <div
                 className="relative"
                 onMouseEnter={() => setShopDropdownOpen(true)}
@@ -118,66 +128,77 @@ export const Navbar: React.FC = () => {
                 </Link>
 
                 {shopDropdownOpen && (
-                  <div className="absolute top-full left-0 w-52 bg-white shadow-xl border border-olive/10 py-3 px-2 rounded-xs z-50 animate-fade-in">
+                  <div className="absolute top-full left-0 w-56 bg-white shadow-xl border border-olive/10 py-3 px-2 rounded-xs z-50 animate-fade-in max-h-80 overflow-y-auto">
                     <Link
                       to="/shop"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
+                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors font-semibold"
                     >
                       Shop All Clothing
                     </Link>
                     <Link
                       to="/best-sellers"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
+                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors font-semibold text-gold-dark"
                     >
                       Best Sellers
                     </Link>
                     <div className="my-1 border-t border-gray-100" />
-                    <Link
-                      to="/category/dresses"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
-                    >
-                      Dresses
-                    </Link>
-                    <Link
-                      to="/category/tops"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
-                    >
-                      Tops
-                    </Link>
-                    <Link
-                      to="/category/pants-trousers"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
-                    >
-                      Pants & Trousers
-                    </Link>
-                    <Link
-                      to="/category/co-ord-sets"
-                      className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
-                    >
-                      Co-Ord Sets
-                    </Link>
+                    {categories
+                      .filter((c) => c.isActive)
+                      .map((cat) => (
+                        <Link
+                          key={cat.id}
+                          to={`/category/${cat.slug}`}
+                          className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
                   </div>
                 )}
               </div>
 
-              <Link
-                to="/category/dresses"
-                className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all"
-              >
-                Dresses
-              </Link>
-              <Link
-                to="/category/tops"
-                className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all"
-              >
-                Tops
-              </Link>
-              <Link
-                to="/category/pants-trousers"
-                className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all"
-              >
-                Bottoms
-              </Link>
+              {/* Primary Visible Categories */}
+              {primaryNavCategories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/category/${cat.slug}`}
+                  className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all"
+                >
+                  {cat.name}
+                </Link>
+              ))}
+
+              {/* Overflow "More" Dropdown when width is insufficient */}
+              {overflowNavCategories.length > 0 && (
+                <div
+                  className="relative"
+                  onMouseEnter={() => setMoreDropdownOpen(true)}
+                  onMouseLeave={() => setMoreDropdownOpen(false)}
+                >
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 hover:text-olive transition-colors py-1 text-xs uppercase tracking-widestPlus"
+                  >
+                    <span>More</span>
+                    <ChevronDown className="w-3 h-3 text-charcoal/60" />
+                  </button>
+
+                  {moreDropdownOpen && (
+                    <div className="absolute top-full left-0 w-48 bg-white shadow-xl border border-olive/10 py-3 px-2 rounded-xs z-50 animate-fade-in">
+                      {overflowNavCategories.map((cat) => (
+                        <Link
+                          key={cat.id}
+                          to={`/category/${cat.slug}`}
+                          className="block px-3 py-2 text-xs tracking-wider text-charcoal hover:bg-ivory hover:text-olive transition-colors"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <Link
                 to="/best-sellers"
                 className="hover:text-olive transition-colors relative py-1 after:absolute after:bottom-0 after:left-0 after:w-0 hover:after:w-full after:h-[1px] after:bg-olive after:transition-all text-gold-dark font-semibold"
@@ -333,7 +354,7 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto py-4 px-6 space-y-4 text-xs tracking-widestPlus uppercase font-medium">
+            <nav className="flex-1 overflow-y-auto py-4 px-6 space-y-3 text-xs tracking-widestPlus uppercase font-medium">
               <Link
                 to="/new-arrivals"
                 className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
@@ -342,34 +363,31 @@ export const Navbar: React.FC = () => {
               </Link>
               <Link
                 to="/shop"
-                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
+                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100 font-semibold"
               >
-                Shop All
+                Shop All Clothing
               </Link>
-              <Link
-                to="/category/dresses"
-                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
-              >
-                Dresses
-              </Link>
-              <Link
-                to="/category/tops"
-                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
-              >
-                Tops
-              </Link>
-              <Link
-                to="/category/pants-trousers"
-                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
-              >
-                Bottoms & Trousers
-              </Link>
-              <Link
-                to="/category/co-ord-sets"
-                className="block py-2 text-charcoal hover:text-olive border-b border-gray-100"
-              >
-                Co-Ord Sets
-              </Link>
+
+              {/* Dynamic Boutique Categories */}
+              <div className="py-2 border-b border-gray-100">
+                <span className="text-[10px] uppercase tracking-widestPlus text-gold font-bold block mb-2">
+                  Categories
+                </span>
+                <div className="space-y-1.5 pl-2 border-l border-gold/30">
+                  {categories
+                    .filter((c) => c.isActive)
+                    .map((cat) => (
+                      <Link
+                        key={cat.id}
+                        to={`/category/${cat.slug}`}
+                        className="block py-1 text-charcoal/80 hover:text-olive text-xs font-normal"
+                      >
+                        {cat.name}
+                      </Link>
+                    ))}
+                </div>
+              </div>
+
               <Link
                 to="/best-sellers"
                 className="block py-2 text-gold-dark font-semibold border-b border-gray-100"

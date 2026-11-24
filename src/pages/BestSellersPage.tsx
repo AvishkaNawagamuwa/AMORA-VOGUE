@@ -1,9 +1,12 @@
 import React from 'react';
-import { PRODUCTS } from '../data/products';
+import { useStore } from '../context/StoreContext';
 import { ProductListTemplate } from '../components/products/ProductListTemplate';
 
 export const BestSellersPage: React.FC = () => {
-  const bestSellers = PRODUCTS.filter((p) => p.bestSeller);
+  const { products } = useStore();
+  const bestSellers = products.filter(
+    (p) => (p.status || 'published') === 'published' && p.bestSeller
+  );
 
   return (
     <ProductListTemplate

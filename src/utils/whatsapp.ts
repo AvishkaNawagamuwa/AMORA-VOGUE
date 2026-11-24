@@ -1,3 +1,5 @@
+import { storeService } from '../services/storeService';
+
 export interface OrderItem {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   image: string;
+  slug?: string;
 }
 
 export interface CustomerDetails {
@@ -26,10 +29,6 @@ export interface CustomerDetails {
  */
 export function validateSriLankanPhone(phone: string): boolean {
   const cleaned = phone.replace(/[\s\-\(\)\+]/g, '');
-  // Format check:
-  // Starts with 07 and 10 digits total: 07XXXXXXXX
-  // Or starts with 947 and 11 digits total: 947XXXXXXXX
-  // Or starts with 7 and 9 digits: 7XXXXXXXX
   return /^(?:07\d{8}|947\d{8}|7\d{8})$/.test(cleaned);
 }
 
@@ -60,10 +59,11 @@ export function generateWhatsAppMessage(
   );
 
   const formattedSubtotal = new Intl.NumberFormat('en-LK').format(merchandiseSubtotal);
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amora-vogue.vercel.app';
 
   let message = `Hello AMORA VOGUE! 🌸\n`;
-  message += `I would like to place an order for the following items.\n\n`;
-  message += `ORDER DETAILS\n`;
+  message += `I would like to place an order for the following boutique items.\n\n`;
+  message += `--- ORDER DETAILS ---\n`;
 
   items.forEach((item, index) => {
     const itemNum = String(index + 1).padStart(2, '0');
@@ -71,46 +71,67 @@ export function generateWhatsAppMessage(
     const formattedUnitPrice = new Intl.NumberFormat('en-LK').format(item.unitPrice);
     const formattedLineTotal = new Intl.NumberFormat('en-LK').format(lineTotal);
 
-    message += `\nItem ${itemNum}\n`;
-    message += `Product: ${item.name}\n`;
-    message += `Code: ${item.sku}\n`;
-    message += `Size: ${item.size}\n`;
-    message += `Color: ${item.color}\n`;
-    message += `Quantity: ${item.quantity}\n`;
-    message += `Unit Price: Rs. ${formattedUnitPrice}\n`;
-    message += `Subtotal: Rs. ${formattedLineTotal}\n`;
+    // Look up product slug if not present
+    let productUrl = '';
+    if (item.slug) {
+      productUrl = `${origin}/product/${item.slug}`;
+    } else {
+      const p = storeService.getProducts({ status: 'all' }).find((x) => x.sku === item.sku || x.name === item.name);
+      if (p) {
+        productUrl = `${origin}/product/${p.slug}`;
+      }
+    }
+
+    message += `\nItem ${itemNum}:\n`;
+    message += `• Product: ${item.name}\n`;
+    message += `• SKU: ${item.sku}\n`;
+    message += `• Size: ${item.size}\n`;
+    message += `• Color: ${item.color}\n`;
+    message += `• Quantity: ${item.quantity}\n`;
+    message += `• Unit Price: Rs. ${formattedUnitPrice}\n`;
+    message += `• Subtotal: Rs. ${formattedLineTotal}\n`;
+    if (productUrl) {
+      message += `• Link: ${productUrl}\n`;
+    }
   });
 
   message += `\nTOTAL ITEMS: ${totalItems}\n`;
-  message += `MERCHANDISE SUBTOTAL: Rs. ${formattedSubtotal}\n`;
-  message += `Delivery Charges: To be confirmed\n\n`;
+  message += `MERCHANDISE TOTAL: Rs. ${formattedSubtotal}\n`;
+  message += `Delivery Charges: To be confirmed upon delivery location\n\n`;
 
-  message += `CUSTOMER DETAILS\n`;
-  message += `Name: ${customer.fullName.trim()}\n`;
-  message += `Contact: ${customer.contactNumber.trim()}\n`;
-  message += `Address: ${customer.deliveryAddress.trim()}\n`;
-  message += `City: ${customer.city.trim()}\n`;
-  message += `District: ${customer.district.trim()}\n`;
-  message += `Postal Code: ${customer.postalCode ? customer.postalCode.trim() : 'Not provided'}\n`;
+  message += `--- CUSTOMER DETAILS ---\n`;
+  message += `• Name: ${customer.fullName.trim()}\n`;
+  message += `• Contact: ${customer.contactNumber.trim()}\n`;
+  message += `• Delivery Address: ${customer.deliveryAddress.trim()}\n`;
+  message += `• City: ${customer.city.trim()}\n`;
+  message += `• District: ${customer.district.trim()}\n`;
+  message += `• Postal Code: ${customer.postalCode ? customer.postalCode.trim() : 'Not provided'}\n`;
 
   if (customer.deliveryInstructions?.trim()) {
-    message += `Delivery Instructions: ${customer.deliveryInstructions.trim()}\n`;
+    message += `• Delivery Instructions: ${customer.deliveryInstructions.trim()}\n`;
   }
   if (customer.notes?.trim()) {
-    message += `Notes: ${customer.notes.trim()}\n`;
+    message += `• Notes: ${customer.notes.trim()}\n`;
   }
 
-  message += `\nPlease confirm availability, delivery charges, and order details.\n`;
+  message += `\nPlease confirm availability, delivery timeline, and bank details / COD confirmation.\n`;
   message += `Thank you!`;
 
   return message;
 }
 
 /**
- * Gets configured WhatsApp business phone number from environment
+ * Gets configured WhatsApp business phone number from store settings or environment
  */
 export function getWhatsAppNumber(): string {
-  const rawNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '';
+  try {
+    const settings = storeService.getStoreSettings();
+    if (settings?.whatsappNumber) {
+      return settings.whatsappNumber.replace(/[^0-9]/g, '');
+    }
+  } catch {}
+
+  const rawNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '94771234567';
   return rawNumber.replace(/[^0-9]/g, '');
 }
 
@@ -126,7 +147,7 @@ export function buildWhatsAppLink(
   if (!number || number.length < 9) {
     return {
       url: '',
-      error: 'WhatsApp business number is not configured. Please set VITE_WHATSAPP_NUMBER.',
+      error: 'WhatsApp business number is not configured in Store Settings.',
     };
   }
 
@@ -141,7 +162,6 @@ export function buildWhatsAppLink(
  * Builds a direct WhatsApp chat link with arbitrary pre-filled message text
  */
 export function buildDirectWhatsAppMessageLink(text: string): string {
-  const number = getWhatsAppNumber() || '94770000000';
+  const number = getWhatsAppNumber() || '94771234567';
   return `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
 }
-

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Product } from '../../data/products';
 import { ProductCard } from './ProductCard';
-import { CATEGORIES } from '../../data/categories';
+import { useStore } from '../../context/StoreContext';
 import { Filter, X, ChevronDown, SlidersHorizontal, RotateCcw } from 'lucide-react';
 
 interface ProductListTemplateProps {
@@ -18,6 +18,8 @@ export const ProductListTemplate: React.FC<ProductListTemplateProps> = ({
   initialProducts,
   currentCategory,
 }) => {
+  const { categories } = useStore();
+  const activeCategories = categories.filter((c) => c.isActive);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchParamQuery = searchParams.get('search') || '';
 
@@ -216,7 +218,7 @@ export const ProductListTemplate: React.FC<ProductListTemplateProps> = ({
                   >
                     All Categories
                   </button>
-                  {CATEGORIES.map((cat) => (
+                  {activeCategories.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.slug)}
@@ -394,7 +396,7 @@ export const ProductListTemplate: React.FC<ProductListTemplateProps> = ({
                     className="w-full p-2 border border-gray-300"
                   >
                     <option value="all">All Categories</option>
-                    {CATEGORIES.map((c) => (
+                    {activeCategories.map((c) => (
                       <option key={c.id} value={c.slug}>
                         {c.name}
                       </option>

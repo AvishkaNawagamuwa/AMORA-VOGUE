@@ -1,41 +1,43 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useStore } from '../../context/StoreContext';
 
 interface Slide {
-  id: number;
+  id: string | number;
   image: string;
+  mobileImage?: string;
   alt: string;
   link: string;
 }
 
-const HERO_SLIDES: Slide[] = [
+const DEFAULT_HERO_SLIDES: Slide[] = [
   {
-    id: 1,
+    id: 'slide-1',
     image: '/Carousel/Modern Essentials Fashion Banner.png',
     alt: 'AMORA VOGUE - Modern Essentials: Curated Feminine Elegance',
     link: '/new-arrivals',
   },
   {
-    id: 2,
+    id: 'slide-2',
     image: '/Carousel/1.jpeg',
     alt: 'AMORA VOGUE - After Hours: A quiet statement of elegance',
     link: '/category/dresses',
   },
   {
-    id: 3,
+    id: 'slide-3',
     image: '/Carousel/2.jpeg',
     alt: 'AMORA VOGUE - Elevated Lines: Grace in every detail',
     link: '/new-arrivals',
   },
   {
-    id: 4,
+    id: 'slide-4',
     image: '/Carousel/3.jpeg',
     alt: 'AMORA VOGUE - Soft Poise: Where elegance meets ease',
     link: '/best-sellers',
   },
   {
-    id: 5,
+    id: 'slide-5',
     image: '/Carousel/Effortless Style Fashion Portrait.png',
     alt: 'AMORA VOGUE - Effortless Style: Contemporary Silhouette & Poise',
     link: '/shop',
@@ -43,15 +45,23 @@ const HERO_SLIDES: Slide[] = [
 ];
 
 export const HeroCarousel: React.FC = () => {
+  const { banners } = useStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const touchStartX = useRef<number | null>(null);
-  const touchEndX = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const activeBanners = banners.filter((b) => b.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
+  const slides: Slide[] = activeBanners.length > 0
+    ? activeBanners.map((b) => ({
+        id: b.id,
+        image: b.image,
+        mobileImage: b.mobileImage,
+        alt: b.alt || b.title,
+        link: b.link || '/shop',
+      }))
+    : DEFAULT_HERO_SLIDES;
 
-  const totalSlides = HERO_SLIDES.length;
+  const totalSlides = slides.length;
 
   const nextSlide = useCallback(() => {
     if (isTransitioning) return;
@@ -143,7 +153,7 @@ export const HeroCarousel: React.FC = () => {
           transition: 'transform 700ms cubic-bezier(0.25, 1, 0.5, 1)',
         }}
       >
-        {HERO_SLIDES.map((slide, idx) => (
+        {slides.map((slide, idx) => (
           <div
             key={slide.id}
             className="hero-slide relative w-full flex-shrink-0"
@@ -198,7 +208,7 @@ export const HeroCarousel: React.FC = () => {
         role="tablist"
         aria-label="Carousel pagination"
       >
-        {HERO_SLIDES.map((slide, idx) => {
+        {slides.map((slide, idx) => {
           const isActive = idx === currentIndex;
           return (
             <button
