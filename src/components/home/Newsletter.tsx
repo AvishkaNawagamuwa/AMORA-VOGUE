@@ -45,7 +45,7 @@ export const Newsletter: React.FC = () => {
   };
 
   return (
-    <section className="relative py-20 sm:py-24 md:py-32 overflow-hidden bg-charcoal text-ivory border-t border-b border-gold/25">
+    <section className="relative w-full min-h-[540px] sm:min-h-[620px] md:min-h-[680px] lg:h-[720px] lg:min-h-[720px] flex items-center justify-center overflow-hidden bg-charcoal text-ivory border-t border-b border-gold/25">
       {/* Background Video */}
       <video
         ref={videoRef}
@@ -56,7 +56,7 @@ export const Newsletter: React.FC = () => {
         preload="auto"
         onLoadedData={() => setIsLoaded(true)}
         aria-hidden="true"
-        className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-opacity duration-1000 ${
+        className={`absolute inset-0 w-full h-full object-cover object-[center_top] pointer-events-none transition-opacity duration-1000 ${
           isLoaded ? 'opacity-100' : 'opacity-0'
         }`}
       >
@@ -64,17 +64,17 @@ export const Newsletter: React.FC = () => {
       </video>
 
       {/* Cinematic Luxury Overlays */}
-      {/* 1. Base dark tint gradient for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-charcoal/85 via-charcoal/70 to-charcoal/90 pointer-events-none" />
+      {/* 1. Base dark tint gradient for readability and section blending */}
+      <div className="absolute inset-0 bg-gradient-to-b from-charcoal/75 via-charcoal/40 to-charcoal/85 pointer-events-none" />
 
-      {/* 2. Radial vignette to focus center text */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_20%,_rgba(27,27,27,0.75)_100%)] pointer-events-none" />
+      {/* 2. Radial vignette to softly focus center text without hiding the model */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(27,27,27,0.35)_0%,_rgba(27,27,27,0.75)_100%)] pointer-events-none" />
 
       {/* 3. Subtle backdrop blur for elegant depth */}
       <div className="absolute inset-0 backdrop-blur-[0.5px] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-12 text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 mb-4 rounded-full bg-charcoal/60 backdrop-blur-md border border-gold/40 shadow-xs">
           <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
           <span className="text-[10px] md:text-xs tracking-widestPlus uppercase font-semibold text-gold-light">
