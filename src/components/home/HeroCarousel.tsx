@@ -28,6 +28,18 @@ const HERO_SLIDES: Slide[] = [
     alt: 'AMORA VOGUE - Soft Poise: Where elegance meets ease',
     link: '/best-sellers',
   },
+  {
+    id: 4,
+    image: '/Carousel/Effortless Style Fashion Portrait.png',
+    alt: 'AMORA VOGUE - Effortless Style: Contemporary Silhouette & Poise',
+    link: '/shop',
+  },
+  {
+    id: 5,
+    image: '/Carousel/Modern Essentials Fashion Banner.png',
+    alt: 'AMORA VOGUE - Modern Essentials: Curated Feminine Elegance',
+    link: '/new-arrivals',
+  },
 ];
 
 export const HeroCarousel: React.FC = () => {
