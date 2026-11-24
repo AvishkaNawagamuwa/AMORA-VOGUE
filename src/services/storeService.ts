@@ -3,6 +3,7 @@ import { PRODUCTS as INITIAL_PRODUCTS } from '../data/products';
 import {
   Category,
   Product,
+  ProductColor,
   HomepageBanner,
   StoreSettings,
   DashboardMetrics,
@@ -261,9 +262,9 @@ class StoreService {
               colorName: i.color_name,
               viewType: i.view_type,
             })),
-            availableSizes: Array.from(new Set(vars.map((v: any) => v.size))),
+            availableSizes: Array.from(new Set(vars.map((v: any) => v.size))) as string[],
             availableColors: Array.from(
-              new Map(
+              new Map<string, ProductColor>(
                 vars.map((v: any) => [v.color_name, { name: v.color_name, hex: v.color_hex || '#333333' }])
               ).values()
             ),

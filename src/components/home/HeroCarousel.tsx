@@ -50,6 +50,10 @@ export const HeroCarousel: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const containerRef = useRef<HTMLElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
   const activeBanners = banners.filter((b) => b.isActive).sort((a, b) => a.displayOrder - b.displayOrder);
   const slides: Slide[] = activeBanners.length > 0
     ? activeBanners.map((b) => ({

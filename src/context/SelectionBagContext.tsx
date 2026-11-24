@@ -1,9 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { OrderItem } from '../utils/whatsapp';
 
+export type AddItemInput =
+  | Omit<OrderItem, 'id'>
+  | {
+      product: {
+        id?: string;
+        sku?: string;
+        name?: string;
+        title?: string;
+        price: number;
+        slug?: string;
+        images?: string[];
+        image?: string;
+        [key: string]: any;
+      };
+      size: string;
+      color: string;
+      quantity: number;
+    };
+
 interface SelectionBagContextType {
   items: OrderItem[];
-  addItem: (item: Omit<OrderItem, 'id'>) => void;
+  addItem: (item: AddItemInput) => void;
+  addToBag: (item: AddItemInput) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, newQty: number) => void;
   clearBag: () => void;
@@ -44,7 +64,24 @@ export const SelectionBagProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [items]);
 
-  const addItem = (newItemData: Omit<OrderItem, 'id'>) => {
+  const addItem = (input: AddItemInput) => {
+    let newItemData: Omit<OrderItem, 'id'>;
+    if ('product' in input) {
+      const p = input.product;
+      newItemData = {
+        name: p.name || p.title || 'Item',
+        sku: p.sku || p.id || 'AV-ITEM',
+        size: input.size,
+        color: input.color,
+        quantity: input.quantity || 1,
+        unitPrice: p.price,
+        image: (p.images && p.images[0]) || p.image || '',
+        slug: p.slug || p.id,
+      };
+    } else {
+      newItemData = input;
+    }
+
     // Generate unique ID based on SKU, size and color
     const itemId = `${newItemData.sku}-${newItemData.size}-${newItemData.color}`.toLowerCase().replace(/\s+/g, '-');
 
@@ -102,6 +139,7 @@ export const SelectionBagProvider: React.FC<{ children: React.ReactNode }> = ({ 
       value={{
         items,
         addItem,
+        addToBag: addItem,
         removeItem,
         updateQuantity,
         clearBag,
