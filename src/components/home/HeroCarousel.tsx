@@ -12,33 +12,33 @@ interface Slide {
 const HERO_SLIDES: Slide[] = [
   {
     id: 1,
+    image: '/Carousel/Modern Essentials Fashion Banner.png',
+    alt: 'AMORA VOGUE - Modern Essentials: Curated Feminine Elegance',
+    link: '/new-arrivals',
+  },
+  {
+    id: 2,
     image: '/Carousel/1.jpeg',
     alt: 'AMORA VOGUE - After Hours: A quiet statement of elegance',
     link: '/category/dresses',
   },
   {
-    id: 2,
+    id: 3,
     image: '/Carousel/2.jpeg',
     alt: 'AMORA VOGUE - Elevated Lines: Grace in every detail',
     link: '/new-arrivals',
   },
   {
-    id: 3,
+    id: 4,
     image: '/Carousel/3.jpeg',
     alt: 'AMORA VOGUE - Soft Poise: Where elegance meets ease',
     link: '/best-sellers',
   },
   {
-    id: 4,
+    id: 5,
     image: '/Carousel/Effortless Style Fashion Portrait.png',
     alt: 'AMORA VOGUE - Effortless Style: Contemporary Silhouette & Poise',
     link: '/shop',
-  },
-  {
-    id: 5,
-    image: '/Carousel/Modern Essentials Fashion Banner.png',
-    alt: 'AMORA VOGUE - Modern Essentials: Curated Feminine Elegance',
-    link: '/new-arrivals',
   },
 ];
 
